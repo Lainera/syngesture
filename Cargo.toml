@@ -1,5 +1,5 @@
 [package]
-name = "syngestures"
+name = "syngesture"
 version = "1.0.1"
 authors = ["Mahmoud Al-Qudsi <mqudsi@neosmart.net>"]
 edition = "2018"
