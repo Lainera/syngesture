@@ -57,6 +57,11 @@ pub(crate) fn config_dirs() -> Vec<String> {
     ]
 }
 
+pub(crate) fn load_path<P: AsRef<Path>>(path: P) -> Configuration {
+    let mut config = Configuration::new();
+    load_config_file(&mut config, path.as_ref()).expect("Specified {path} not found");
+    config
+}
 pub(crate) fn load() -> Configuration {
     let mut config = Configuration::new();
 
