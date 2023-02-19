@@ -215,7 +215,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "syngestures"
+name = "syngesture"
 version = "1.0.1"
 dependencies = [
  "evdev-rs",
