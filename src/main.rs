@@ -38,6 +38,7 @@ fn print_help<W: std::io::Write>(target: &mut W) {
         "Options:",
         "  -h --help     Print this help message",
         "  -V --version  Print version info",
+        "  -f $CONFIG_FILE_PATH Load config file",
         "",
         "A valid syngestures config file must be installed to one of the",
         "following locations before executing syngestures:",
@@ -79,14 +80,21 @@ fn init_logger() {
 fn main() {
     init_logger();
 
-    let args = std::env::args();
-    for arg in args.skip(1) {
-        match arg.as_str() {
+    let mut args = std::env::args();
+    let config = args
+        .nth(1)
+        .map(|arg| match arg.as_str() {
+            "-f" | "--file" => {
+                let path = args
+                    .next()
+                    .expect("config file path must follow the file flag");
+                config::load_path(path)
+            }
             "-h" | "--help" => {
                 print_help(&mut std::io::stdout());
                 std::process::exit(0);
             }
-            "-V" | "--version" => {
+            "-v" | "--version" => {
                 print_version(&mut std::io::stdout());
                 std::process::exit(0);
             }
@@ -95,10 +103,8 @@ fn main() {
                 eprintln!("Try 'syngestures --help' for more info");
                 std::process::exit(-1);
             }
-        }
-    }
-
-    let config = config::load();
+        })
+        .unwrap_or_else(config::load);
 
     if config.devices.is_empty() {
         error!("No configured devices");
@@ -184,7 +190,7 @@ fn swipe_handler(gestures: &config::GestureMap, gesture: Gesture) {
         Action::None => {}
         Action::Execute(cmd) => {
             let mut shell = Command::new("sh");
-            shell.args(&["-c", cmd]);
+            shell.args(["-c", cmd]);
             let mut child = match shell.spawn() {
                 Ok(child) => child,
                 Err(e) => {
