@@ -447,7 +447,7 @@ impl TouchpadState {
             }
         }
 
-        return None;
+        None
     }
 
     pub fn push_position(&mut self, x: i32, y: i32) {
@@ -475,7 +475,7 @@ impl TouchpadState {
         };
 
         let distance = match &self.end_xy {
-            Some(end_xy) => get_distance(self.start_xy.as_ref().unwrap(), &end_xy),
+            Some(end_xy) => get_distance(self.start_xy.as_ref().unwrap(), end_xy),
             None => 0f64,
         };
 
@@ -510,7 +510,7 @@ fn int_to_event_code(ev_type: EventType, ev_code: u16) -> EventCode {
     // to change it back as we know it'll be within the expected range of values.
     match ev_type {
         EventType::EV_ABS => EventCode::EV_ABS(unsafe { std::mem::transmute(ev_code as u8) }),
-        EventType::EV_KEY => EventCode::EV_KEY(unsafe { std::mem::transmute(ev_code as u16) }),
+        EventType::EV_KEY => EventCode::EV_KEY(unsafe { std::mem::transmute(ev_code) }),
         _ => unimplemented!(),
     }
 }
