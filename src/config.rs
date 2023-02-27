@@ -89,7 +89,7 @@ pub(crate) fn load() -> Configuration {
 }
 
 fn try_load_config_file(config: &mut Configuration, path: &Path) {
-    if let Err(e) = load_config_file(config, &path) {
+    if let Err(e) = load_config_file(config, path) {
         error!(
             "Error loading configuration file at {}: {}",
             path.display(),
@@ -99,7 +99,7 @@ fn try_load_config_file(config: &mut Configuration, path: &Path) {
 }
 
 fn try_load_config_dir(config: &mut Configuration, dir: &Path) {
-    if let Err(e) = load_config_dir(config, &dir) {
+    if let Err(e) = load_config_dir(config, dir) {
         error!(
             "Error reading from configuration directory {}: {}",
             dir.display(),
@@ -108,7 +108,7 @@ fn try_load_config_dir(config: &mut Configuration, dir: &Path) {
     }
 }
 
-fn load_user_config(mut config: &mut Configuration) {
+fn load_user_config(config: &mut Configuration) {
     let config_home = match std::env::var_os("XDG_CONFIG_HOME") {
         Some(xdg_config_home) => PathBuf::from(xdg_config_home),
         None => match get_user_config_dir() {
@@ -122,11 +122,11 @@ fn load_user_config(mut config: &mut Configuration) {
 
     let user_config_file = config_home.join("syngestures.toml");
     if user_config_file.exists() {
-        try_load_config_file(&mut config, &user_config_file);
+        try_load_config_file(config, &user_config_file);
     }
 
     let user_config_dir = config_home.join("syngestures.d");
-    try_load_config_dir(&mut config, &user_config_dir);
+    try_load_config_dir(config, &user_config_dir);
 }
 
 fn get_user_config_dir() -> Result<PathBuf> {
@@ -141,7 +141,7 @@ fn get_user_config_dir() -> Result<PathBuf> {
     Ok(config_home)
 }
 
-fn load_config_dir(mut config: &mut Configuration, dir: &Path) -> Result<()> {
+fn load_config_dir(config: &mut Configuration, dir: &Path) -> Result<()> {
     use std::fs::DirEntry;
 
     if !dir.exists() || !dir.is_dir() {
@@ -172,7 +172,7 @@ fn load_config_dir(mut config: &mut Configuration, dir: &Path) -> Result<()> {
                 return Ok(());
             }
 
-            try_load_config_file(&mut config, &item);
+            try_load_config_file(config, &item);
             Ok(())
         };
 

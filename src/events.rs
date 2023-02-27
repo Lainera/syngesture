@@ -8,7 +8,7 @@ use serde_repr::*;
 /// The maximum travel before a tap is considered a swipe, in millimeters.
 const MAX_TAP_DISTANCE: f64 = 100f64;
 /// The maximum number of tools (fingers) that are tracked and reported on simultaneously.
-const MAX_SLOTS: usize = 5;
+const MAX_SLOTS: usize = 12;
 /// How long before the event state resets
 const EVENT_TIMEOUT: f64 = 10_593_665_152f64;
 /// A new gesture (note: not a new report) will not be entertained in this timespan.
@@ -236,8 +236,6 @@ impl TouchpadState {
         {
             let prev_finger_start = self.finger_start;
             let mut slot = &mut self.slot_states[0];
-            #[allow(unused_assignments)]
-            let mut slot_id = 0usize;
             // A slot id is only specified if more than one tool is detected.
             if slot.is_none() {
                 *slot = Some(Default::default());
@@ -264,7 +262,7 @@ impl TouchpadState {
                         // This just tells us we're using a multitouch-capable trackpad and the
                         // id of the slot that contains information about the tool (finger) being
                         // tracked.
-                        slot_id = event.value as usize;
+                        let slot_id = event.value as usize;
                         self.slot_states[slot_id] = Some(Default::default());
                         slot = &mut self.slot_states[slot_id];
                     }
@@ -388,7 +386,7 @@ impl TouchpadState {
             debug!("Remaining finger(s): {:?}", self.last_finger);
         }
 
-        return None;
+        None
     }
 
     pub fn push_position(&mut self, x: i32, y: i32) {
@@ -416,7 +414,7 @@ impl TouchpadState {
         };
 
         let distance = match &self.end_xy {
-            Some(end_xy) => get_distance(self.start_xy.as_ref().unwrap(), &end_xy),
+            Some(end_xy) => get_distance(self.start_xy.as_ref().unwrap(), end_xy),
             None => 0f64,
         };
 
@@ -451,7 +449,7 @@ fn int_to_event_code(ev_type: EventType, ev_code: u16) -> EventCode {
     // to change it back as we know it'll be within the expected range of values.
     match ev_type {
         EventType::EV_ABS => EventCode::EV_ABS(unsafe { std::mem::transmute(ev_code as u8) }),
-        EventType::EV_KEY => EventCode::EV_KEY(unsafe { std::mem::transmute(ev_code as u16) }),
+        EventType::EV_KEY => EventCode::EV_KEY(unsafe { std::mem::transmute(ev_code) }),
         _ => unimplemented!(),
     }
 }
